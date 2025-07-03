@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Âge Retour vers le Futur</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #111;
+      color: #39ff14;
+      text-align: center;
+      padding: 2em;
+    }
+    input, button {
+      padding: .5em;
+      font-size: 1em;
+      margin: 1em;
+    }
+    .result {
+      margin-top: 2em;
+      font-size: 1.2em;
+      line-height: 1.5em;
+    }
+    .flash {
+      animation: flash 0.6s ease-in-out;
+    }
+    @keyframes flash {
+      from { background-color: white; }
+      to   { background-color: #111; }
+    }
+  </style>
+</head>
+<body>
+  <h1>🕒 Âge Retour vers le Futur – 40 ans déjà !</h1>
+  <p>Entre ta date de naissance :</p>
+  <input type="date" id="dob">
+  <button onclick="calculate()">Calculer</button>
+
+  <div class="result" id="result"></div>
+
+  <audio id="sound-nuclear" src="sounds/nuclear-recharge.mp3"></audio>
+  <audio id="sound-reset" src="sounds/time-reset.mp3"></audio>
+
+  <script>
+    function calculate() {
+      const dobInput = document.getElementById('dob').value;
+      if (!dobInput) return;
+
+      const nuc = document.getElementById('sound-nuclear');
+      nuc.currentTime = 0;
+      nuc.play();
+
+      setTimeout(() => {
+        const dob = new Date(dobInput);
+        const refDates = {
+          "1955 (voyage de Doc)": new Date("1955-11-05"),
+          "1985 (40 ans du film)": new Date("1985-07-03"),
+          "2015 (le futur de BTTF 2)": new Date("2015-10-21"),
+          "2025 (ajourd’hui)": new Date()
+        };
+        let text = "";
+        for (const [label, d] of Object.entries(refDates)) {
+          let age = d.getFullYear() - dob.getFullYear();
+          if (d < new Date(d.getFullYear(), dob.getMonth(), dob.getDate())) age--;
+          text += `<strong>En ${label} :</strong> ${age} ans<br>`;
+        }
+        const now = new Date(), ageNow = refDates["2025 (ajourd’hui)"].getFullYear() - dob.getFullYear() - ((now < new Date(now.getFullYear(), dob.getMonth(), dob.getDate())) ? 1 : 0);
+        const vb = 1985 - ageNow;
+        text += `<br><em>Tu serais né(e) en ${vb} pour avoir ton âge actuel en 1985.</em>`;
+        const rst = document.getElementById('sound-reset');
+        rst.currentTime = 0;
+        rst.play();
+        const res = document.getElementById('result');
+        res.innerHTML = text;
+        document.body.classList.add('flash');
+        setTimeout(() => document.body.classList.remove('flash'), 600);
+      }, 1500);
+    }
+  </script>
+</body>
+</html>
