@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Back to the Future Age</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #111;
+      color: #39ff14;
+      text-align: center;
+      padding: 2em;
+      font-size: 1.2em;
+    }
+    input, button, select {
+      padding: 0.8em;
+      font-size: 1em;
+      margin: 1em;
+      max-width: 90%;
+    }
+    .result {
+      margin-top: 2em;
+      font-size: 1.4em;
+      line-height: 1.6em;
+    }
+    .flash {
+      animation: flash 0.6s ease-in-out;
+    }
+    @keyframes flash {
+      from { background-color: white; }
+      to   { background-color: #111; }
+    }
+  </style>
+</head>
+<body>
+  <select id="lang-select" onchange="setLang(this.value)">
+    <option value="fr">🇫🇷 Français</option>
+    <option value="en">🇬🇧 English</option>
+  </select>
+
+  <h1 id="title">Âge Retour vers le Futur 🛸</h1>
+  <p id="enter-label">Entre ta date de naissance :</p>
+  <input type="date" id="dob">
+  <button onclick="calculate()" id="calculate-button">Calculer</button>
+
+  <div class="result" id="result"></div>
+
+  <audio id="sound-nuclear" src="sounds/nuclear-recharge.mp3"></audio>
+  <audio id="sound-reset" src="sounds/time-reset.mp3"></audio>
+
+  <script>
+    const translations = {
+      fr: {
+        title: "Âge Retour vers le Futur 🛸",
+        enterLabel: "Entre ta date de naissance :",
+        calculateButton: "Calculer",
+        results: {
+          1955: "En 1955 (voyage de Doc) :",
+          1985: "En 1985 (année de départ) :",
+          2015: "En 2015 (le futur !) :",
+          2025: "En 2025 (aujourd'hui) :",
+          bornIn: "Tu serais né(e) en {year} pour avoir ton âge actuel en 1985."
+        }
+      },
+      en: {
+        title: "Back to the Future Age 🛸",
+        enterLabel: "Enter your birthdate:",
+        calculateButton: "Calculate",
+        results: {
+          1955: "In 1955 (Doc's trip):",
+          1985: "In 1985 (departure year):",
+          2015: "In 2015 (the future!):",
+          2025: "In 2025 (today):",
+          bornIn: "You would have been born in {year} to be your current age in 1985."
+        }
+      }
+    };
+
+    let currentLang = 'fr';
+
+    function setLang(lang) {
+      currentLang = lang;
+      const t = translations[lang];
+      document.getElementById('title').innerText = t.title;
+      document.getElementById('enter-label').innerText = t.enterLabel;
+      document.getElementById('calculate-button').innerText = t.calculateButton;
+    }
+
+    function getAge(dob, refDate) {
+      let age = refDate.getFullYear() - dob.getFullYear();
+      if (refDate < new Date(refDate.getFullYear(), dob.getMonth(), dob.getDate())) age--;
+      return age;
+    }
+
+    function calculate() {
+      const dobInput = document.getElementById('dob').value;
+      if (!dobInput) return;
+
+      const nuc = document.getElementById('sound-nuclear');
+      nuc.currentTime = 0;
+      nuc.play();
+
+      setTimeout(() => {
+        const dob = new Date(dobInput);
+        const refDates = {
+          1955: new Date("1955-11-05"),
+          1985: new Date("1985-07-03"),
+          2015: new Date("2015-10-21"),
+          2025: new Date()
+        };
+
+        const t = translations[currentLang].results;
+        let output = "";
+        for (const [key, date] of Object.entries(refDates)) {
+          output += `<strong>${t[key]}</strong> ${getAge(dob, date)} ans<br>`;
+        }
+
+        const virtualYear = 1985 - getAge(dob, new Date());
+        output += `<br><em>${t.bornIn.replace("{year}", virtualYear)}</em>`;
+
+        const rst = document.getElementById('sound-reset');
+        rst.currentTime = 0;
+        rst.play();
+
+        const res = document.getElementById('result');
+        res.innerHTML = output;
+        document.body.classList.add('flash');
+        setTimeout(() => document.body.classList.remove('flash'), 600);
+      }, 1500);
+    }
+
+    window.onload = () => {
+      const browserLang = navigator.language.startsWith('en') ? 'en' : 'fr';
+      setLang(browserLang);
+      document.getElementById('lang-select').value = browserLang;
+    };
+  </script>
+</body>
+</html>
