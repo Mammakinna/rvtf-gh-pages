@@ -1,0 +1,7 @@
+<svg width="300" height="80" xmlns="http://www.w3.org/2000/svg">
+  <rect width="300" height="80" fill="#fff" stroke="#000" stroke-width="4"/>
+  <text x="150" y="50" font-family="Impact, sans-serif" font-size="40" text-anchor="middle" fill="orange">
+    <animate attributeName="fill" values="orange;red;orange" dur="2s" repeatCount="indefinite" />
+    OUTATIME
+  </text>
+</svg>
