@@ -1,1 +1,161 @@
-PLACEHOLDER_HTML
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Retour vers le Futur – Âge & Anniversaire</title>
+  <style>
+    body {
+      font-family: 'Courier New', monospace;
+      background: #111;
+      color: #39ff14;
+      text-align: center;
+      padding: 2em;
+      font-size: 1.2em;
+    }
+    input, button, select {
+      padding: 0.8em;
+      font-size: 1em;
+      margin: 1em;
+      max-width: 90%;
+    }
+    .result {
+      margin-top: 2em;
+      font-size: 1.4em;
+      line-height: 1.6em;
+    }
+    .flash {
+      animation: flash 0.6s ease-in-out;
+    }
+    @keyframes flash {
+      from { background-color: white; }
+      to   { background-color: #111; }
+    }
+    .logo {
+      width: 250px;
+      margin: 0 auto 1em;
+      display: block;
+      animation: flicker 2s infinite;
+    }
+    @keyframes flicker {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+  </style>
+</head>
+<body>
+  <img src="outatime.svg" alt="OUTATIME" class="logo">
+  <select id="mode-select" onchange="changeMode(this.value)">
+    <option value="normal">🕒 Mode âge rétro</option>
+    <option value="anniv">🎂 Mode anniversaire</option>
+  </select>
+
+  <div id="normal-mode">
+    <p id="enter-label">Entre ta date de naissance :</p>
+    <input type="date" id="dob">
+    <button onclick="calculate()" id="calculate-button">Calculer</button>
+    <div class="result" id="result"></div>
+  </div>
+
+  <div id="anniv-mode" style="display:none;">
+    <p>🎉 Pour qui est cet anniversaire ?</p>
+    <input type="text" id="prenom" placeholder="Prénom">
+    <input type="date" id="anniv-date">
+    <button onclick="calculateAnniv()">Afficher le message</button>
+    <div class="result" id="anniv-result"></div>
+  </div>
+
+  <audio id="sound-nuclear" src="sounds/nuclear-recharge.mp3"></audio>
+  <audio id="sound-reset" src="sounds/time-reset.mp3"></audio>
+
+  <script>
+    function getAge(dob, refDate) {
+      let age = refDate.getFullYear() - dob.getFullYear();
+      if (refDate < new Date(refDate.getFullYear(), dob.getMonth(), dob.getDate())) age--;
+      return age;
+    }
+
+    function calculate() {
+      const dobInput = document.getElementById('dob').value;
+      if (!dobInput) return;
+      const dob = new Date(dobInput);
+      const refDates = {
+        "1955 (voyage de Doc)": new Date("1955-11-05"),
+        "1985 (année de départ)": new Date("1985-07-03"),
+        "2015 (le futur !)": new Date("2015-10-21"),
+        "2025 (aujourd'hui)": new Date()
+      };
+
+      let output = "";
+      for (const [label, date] of Object.entries(refDates)) {
+        output += `<strong>En ${label} :</strong> ${getAge(dob, date)} ans<br>`;
+      }
+
+      const today = new Date();
+      const ageNow = getAge(dob, today);
+      const bornYear = 1985 - ageNow;
+      output += `<br><em>Tu serais né(e) en ${bornYear} pour avoir ton âge actuel en 1985.</em>`;
+
+      document.getElementById('result').innerHTML = output;
+
+      playSounds();
+    }
+
+    function calculateAnniv() {
+      const prenom = document.getElementById('prenom').value.trim();
+      const dateNaissance = document.getElementById('anniv-date').value;
+      if (!prenom || !dateNaissance) return;
+
+      const dob = new Date(dateNaissance);
+      const ages = {
+        "1955": getAge(dob, new Date("1955-11-05")),
+        "1985": getAge(dob, new Date("1985-07-03")),
+        "2015": getAge(dob, new Date("2015-10-21")),
+        "2025": getAge(dob, new Date())
+      };
+
+      const message = `
+        <strong>GRANDE SCOTT !</strong><br><br>
+        C’est l’anniversaire de <strong>${prenom}</strong> aujourd’hui !<br><br>
+        Si ${prenom} était monté(e) dans la DeLorean, elle/il aurait eu :<br>
+        - ${ages["1955"]} ans en 1955 🧪<br>
+        - ${ages["1985"]} ans en 1985 ⚡<br>
+        - ${ages["2015"]} ans en 2015 🚀<br>
+        - ${ages["2025"]} ans en 2025 🎉<br><br>
+        Joyeux anniversaire à travers le continuum espace-temps ! 🔥
+      `;
+
+      document.getElementById("anniv-result").innerHTML = message;
+
+      playSounds();
+    }
+
+    function playSounds() {
+      const s1 = document.getElementById('sound-nuclear');
+      const s2 = document.getElementById('sound-reset');
+      s1.currentTime = 0;
+      s1.play();
+      setTimeout(() => {
+        s2.currentTime = 0;
+        s2.play();
+        document.body.classList.add('flash');
+        setTimeout(() => document.body.classList.remove('flash'), 600);
+      }, 1200);
+    }
+
+    function changeMode(mode) {
+      document.getElementById('normal-mode').style.display = mode === 'normal' ? 'block' : 'none';
+      document.getElementById('anniv-mode').style.display = mode === 'anniv' ? 'block' : 'none';
+    }
+
+    window.onload = () => {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('mode') === 'anniv') {
+        changeMode('anniv');
+        document.getElementById('prenom').value = params.get('prenom') || '';
+        document.getElementById('anniv-date').value = params.get('naissance') || '';
+      }
+    };
+  </script>
+</body>
+</html>
